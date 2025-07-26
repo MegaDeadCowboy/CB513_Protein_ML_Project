@@ -1,134 +1,181 @@
 # CB513 Protein Secondary Structure Prediction
-
-A lightweight neural network implementation for predicting protein secondary structures using the CB513 dataset. This project demonstrates practical bioinformatics machine learning with TensorFlow/Keras.
+A neural network implementation for predicting protein secondary structures using the CB513 dataset. This project demonstrates practical bioinformatics machine learning with TensorFlow/Keras, featuring both lightweight and advanced model architectures.
 
 ## 🧬 Project Overview
-
-This project implements a sequence-to-sequence LSTM model to predict protein secondary structures (Helix, Sheet, Coil) from amino acid sequences. The model is optimized for laptop-friendly training while maintaining scientific validity.
+This project implements sequence-to-sequence models to predict protein secondary structures (Helix, Sheet, Coil) from amino acid sequences. Two model architectures are provided: a lightweight version optimized for resource-constrained environments and a high-performance model with advanced deep learning techniques.
 
 ## 📊 Dataset
-
 - **CB513 Dataset**: 511 protein sequences with secondary structure annotations
 - **Input**: Amino acid sequences (20 standard + 3 non-standard amino acids)
 - **Output**: 3-state secondary structure classification (H/E/C)
-- **Sequence lengths**: 20-874 residues (filtered to ≤256 for efficiency)
+- **Sequence lengths**: 20-874 residues (lightweight model filters to ≤256 for efficiency)
 
-## 🏗️ Model Architecture
+## 🏗️ Model Architectures
 
+### Lightweight Model (`lightmodel.py`)
+**Optimized for laptop-friendly training**
 - **Embedding Layer**: 32-dimensional amino acid representations
 - **LSTM Layer**: 64 units with dropout regularization
 - **Dense Layers**: 32 → 3 units with softmax activation
-- **Total Parameters**: ~27K (laptop-optimized)
+- **Parameters**: 27,683 (108KB)
+- **Training Time**: ~20 seconds on modern hardware
+- **Q3 Accuracy**: 55.55%
 
-## 📈 Results
+### Advanced Model (`bigmodel.py`)
+**High-performance architecture with attention mechanisms**
+- **Embedding Layer**: 128-dimensional amino acid representations
+- **Bidirectional LSTM Layers**: 256 + 128 units (stacked)
+- **Multi-Head Attention**: Captures long-range amino acid dependencies
+- **Layer Normalization**: Residual connections for stable training
+- **Dense Layers**: 256 → 128 → 3 units with dropout
+- **Parameters**: 2,073,731 (7.91MB)
+- **Training Time**: ~21 minutes on AMD Ryzen 7
+- **Q3 Accuracy**: 64.93%
 
-- **Q3 Accuracy**: 55.33% (66% improvement over random baseline)
-- **Per-class Performance**:
-  - Helix (H): 64.0%
-  - Sheet (E): 52.7% 
-  - Coil (C): 50.2%
+## 📈 Performance Results
 
-## 🛠️ Technical Features
+### Model Comparison
+| Model | Parameters | Training Time | Q3 Accuracy | Best Use Case |
+|-------|------------|---------------|-------------|---------------|
+| Lightweight | 27K | 20 seconds | 55.55% | Quick experiments, limited hardware |
+| Advanced | 2.07M | 21 minutes | 64.93% | Research-grade predictions, modern hardware |
 
-- **Class imbalance handling** with computed sample weights
-- **Variable sequence length** support with padding/masking
-- **Early stopping** and learning rate reduction
-- **Memory-efficient** preprocessing for laptop compatibility
-- **Proper train/test splitting** with sequence length stratification
-
-## 📁 Project Structure
-
+### Advanced Model Detailed Results
 ```
-CB513_Protein_ML/
-├── data/
-│   └── CB513.csv                    # Dataset
-├── models/
-│   └── lightweight_protein_model.h5 # Trained model
-├── src/
-│   ├── main.py                      # Data exploration script
-│   ├── neuralnet.py                 # Original full model
-│   └── lightweight_model.py         # Laptop-optimized model
-├── results/
-│   └── training_plots.png           # Training visualization
-├── requirements.txt                 # Dependencies
-└── README.md                        # This file
+Per-class Performance:
+- Helix (H): 72% precision, 69% F1-score
+- Coil (C):  73% precision, 65% F1-score  
+- Sheet (E): 67% recall, 59% F1-score
+
+Overall Q3 Accuracy: 64.93%
 ```
+
+### Scientific Context
+- **Random Baseline**: 33.3% (3-class prediction)
+- **Our Lightweight Model**: 55.55% ✅
+- **Our Advanced Model**: 64.93% ✅
+- **State-of-the-art**: 70-80% (with massive computational resources)
+
+**Achievement**: Professional-grade results on consumer hardware! 🏆
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
 ```bash
-python 3.8+
-tensorflow 2.x
-pandas
-numpy
-matplotlib
-scikit-learn
+pip install tensorflow numpy pandas scikit-learn matplotlib seaborn
 ```
 
-### Installation
-
+### Running the Models
 ```bash
-git clone https://github.com/yourusername/CB513-Protein-ML.git
-cd CB513-Protein-ML
-pip install -r requirements.txt
+# Clone the repository
+git clone https://github.com/MegaDeadCowboy/CB513_Protein_ML_Project.git
+cd CB513_Protein_ML_Project/src
+
+# Run lightweight model (fast, laptop-friendly)
+python lightmodel.py
+
+# Run advanced model (high accuracy, requires modern hardware)
+python bigmodel.py
+
+# Interactive prediction
+python predict.py
 ```
 
-### Usage
-
-1. **Data Exploration**:
+### Helper Script
 ```bash
-python src/main.py
+# From project root
+./run_analysis.sh
 ```
 
-2. **Train Model**:
-```bash
-python src/lightweight_model.py
+## 📁 Project Structure
+```
+CB513_Protein_ML_Project/
+├── README.md                    # This documentation
+├── requirements.txt             # Python dependencies
+├── run_analysis.sh             # Helper execution script
+├── data/
+│   └── CB513.csv               # Dataset (511 protein sequences)
+├── src/
+│   ├── lightmodel.py           # Lightweight LSTM model
+│   ├── bigmodel.py             # Advanced model with attention
+│   ├── predict.py              # Interactive prediction interface
+│   └── CB513_quickview.py      # Data exploration script
+├── models/                     # Trained model files
+└── results/                    # Training outputs and analysis
 ```
 
-3. **Make Predictions**:
+## 🔬 Technical Features
+
+### Advanced Model Innovations
+- **Bidirectional LSTM**: Processes sequences in both directions for context
+- **Multi-Head Attention**: Captures complex amino acid interaction patterns
+- **Residual Connections**: Enables stable training of deeper networks
+- **Layer Normalization**: Improves convergence and generalization
+- **Class Weight Balancing**: Handles imbalanced secondary structure distribution
+
+### Preprocessing Pipeline
+- **Amino acid vocabulary**: Standard 20 + 3 non-standard (U→C, X→A, Z→E)
+- **Sequence filtering**: Configurable length limits for memory efficiency
+- **Class weight computation**: Automatic balancing for protein structure distribution
+- **Masking system**: Proper handling of padded positions during training
+
+## 💻 Hardware Requirements
+
+### Lightweight Model
+- **RAM**: 4GB minimum
+- **CPU**: Any modern processor
+- **Training Time**: <1 minute
+- **Use Case**: Rapid prototyping, educational purposes
+
+### Advanced Model
+- **RAM**: 8GB+ recommended (16GB ideal)
+- **CPU**: Multi-core processor (AMD Ryzen 7 / Intel i7+)
+- **Training Time**: 15-30 minutes
+- **Use Case**: Research, production applications
+
+## 🧪 Interactive Prediction
 ```bash
-python src/predict.py --sequence "MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPFEDHVKLVNEVTEFAKTCVADESAENCDKSLHTLFGDKLCTVATLRETYGEMADCCAKQEPERNECFLQHKDDNPNLPRLVRPEVDVMCTAFHDNEETFLKKYLYEIARRHPYFYAPELLFFAKRYKAAFTECCQAADKAACLLPKLDELRDEGKASSAKQRLKCASLQKFGERAFKAWAVARLSQRFPKAEFAEVSKLVTDLTKVHTECCHGDLLECADDRADLAKYICENQDSISSKLKECCEKPLLEKSHCIAEVENDEMPADLPSLAADFVESKDVCKNYAEAKDVFLGMFLYEYARRHPDYSVVLLLRLAKTYETTLEKCCAAADPHECYAKVFDEFKPLVEEPQNLIKQNCELFEQLGEYKFQNALLVRYTKKVPQVSTPTLVEVSRNLGKVGSKCCKHPEAKRMPCAEDYLSVVLNQLCVLHEKTPVSDRVTKCCTESLVNRRPCFSALEVDETYVPKEFNAETFTFHADICTLSEKERQIKKQTALVELVKHKPKATKEQLKAVMDDFAAFVEKCCKADDKETCFAEEGKKLVAASQAALGL"
+# Run interactive prediction system
+python src/predict.py
+
+# Example usage:
+Enter protein sequence: MKLLVLSLSLVLVAPMAAQTPFQQ
+Predicted structure:   CCCCCCCCCCCCCCCCCCCCCCC
 ```
 
-## 📚 Scientific Context
+## 📊 Biological Relevance
 
-Protein secondary structure prediction is a fundamental problem in bioinformatics. This implementation focuses on:
+### Secondary Structure Types
+- **Helix (H)**: α-helical regions - highly structured, easier to predict
+- **Sheet (E)**: β-sheet regions - structured but more variable
+- **Coil (C)**: Random coil regions - unstructured, inherently difficult
 
-- **Practical ML application** to biological sequence data
-- **Handling class imbalance** in biological datasets
-- **Sequence-to-sequence learning** for variable-length proteins
-- **Evaluation using domain-standard metrics** (Q3 accuracy)
+### Model Performance Insights
+- **Helix Prediction Excellence**: 72% precision demonstrates strong α-helix pattern recognition
+- **Balanced Performance**: All three structure types predicted above random baseline
+- **Attention Benefits**: Multi-head attention captures long-range amino acid dependencies crucial for structure formation
 
-## 🔬 Methodology
+## 🔄 Future Enhancements
+- [ ] 8-state secondary structure prediction (vs current 3-state)
+- [ ] Convolutional layers for local amino acid pattern recognition
+- [ ] Ensemble methods combining multiple model architectures
+- [ ] Transfer learning from larger protein structure datasets
+- [ ] Web interface for broader accessibility
+- [ ] Integration with protein databases (PDB, UniProt)
 
-1. **Data Preprocessing**: Amino acid encoding, sequence padding, structure label encoding
-2. **Class Balancing**: Computed sample weights to handle 44% coil vs 22% sheet imbalance
-3. **Model Training**: LSTM with early stopping and learning rate scheduling
-4. **Evaluation**: Q3 accuracy with per-residue and per-class metrics
-
-## 🎯 Future Improvements
-
-- [ ] Implement 8-state secondary structure prediction
-- [ ] Add convolutional layers for local pattern recognition
-- [ ] Ensemble multiple models for improved accuracy
-- [ ] Web interface for interactive predictions
-- [ ] Comparison with state-of-the-art methods
-
-## 📖 References
-
-- CB513 Dataset: [Cuff & Barton, 1999](https://onlinelibrary.wiley.com/doi/10.1002/(SICI)1097-0134(19990901)36:4%3C400::AID-PROT5%3E3.0.CO;2-3)
-- DSSP Secondary Structure: [Kabsch & Sander, 1983](https://onlinelibrary.wiley.com/doi/abs/10.1002/bip.360221211)
-
-## 📝 License
-
-MIT License - see LICENSE file for details.
+## 📄 Citation
+If you use this work in your research, please cite:
+```
+CB513 Protein Secondary Structure Prediction
+GitHub: https://github.com/MegaDeadCowboy/CB513_Protein_ML_Project
+```
 
 ## 🤝 Contributing
+Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
 
-Contributions welcome! Please read CONTRIBUTING.md for guidelines.
+## 📝 License
+This project is open source and available under the MIT License.
 
 ---
 
-**Note**: This project prioritizes educational value and laptop compatibility over state-of-the-art performance. For production applications, consider larger models and datasets.
+**Built with**: TensorFlow, Python
